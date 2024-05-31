@@ -46,9 +46,9 @@ class DatalyCompare(Compare):
             self.df1_name,
             self.df2_name,
         )
-        report += "Columns in " + self.df1_name + " Have all Null values: " + str(self.df1.columns[self.df1.isna().all()].tolist())
+        report += "Columns in " + self.df1_name + " Have all Null values: " + str(', '.join(self.df1.columns[self.df1.isna().all()].tolist()))
         report += "\n"
-        report += "Columns in " + self.df2_name + " Have all Null values: "  + str(self.df2.columns[self.df2.isna().all()].tolist())
+        report += "Columns in " + self.df2_name + " Have all Null values: "  + str(', '.join(self.df2.columns[self.df1.isna().all()].tolist()))
         report += "\n\n"
 
 
