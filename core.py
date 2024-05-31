@@ -74,6 +74,7 @@ class DatalyCompare(Compare):
 
         match_stats = []
         match_sample = []
+        match_full_list = []
         any_mismatch = False
         for column in self.column_stats:
             if not column["all_match"]:
@@ -94,6 +95,12 @@ class DatalyCompare(Compare):
                             column["column"], sample_count, for_display=True
                         )
                     )
+                    match_full_list.append(
+                        self.ful_list_single_mismatch(
+                            column["column"], for_display=True
+                        )
+                    )
+                  
 
         if any_mismatch:
             report += "Columns with Unequal Values or Types\n"
@@ -113,6 +120,12 @@ class DatalyCompare(Compare):
                 ]
             ].to_string()
             report += "\n\n"
+            
+            report += "Key Summary of Unequal Values\n"
+            report += "-------------------------------\n"
+            report += "\n"
+            report += df_to_str(pd.concat(match_full_list, axis=0, ignore_index=True))
+            report += "\n\n"
 
             if sample_count > 0:
                 report += "Sample Rows with Unequal Values\n"
@@ -124,3 +137,30 @@ class DatalyCompare(Compare):
 
         return report
 
+    def ful_list_single_mismatch(
+        self, column: str, for_display: bool = False
+    ) -> pd.DataFrame:
+        """Returns a all sub-dataframe which contains the identifying
+        columns, and df1 and df2 versions of the column.
+        """
+        col_match = self.intersect_rows[column + "_match"]
+        full_list = self.intersect_rows[~col_match]
+        return_cols = self.join_columns + [
+            column + "_" + self.df1_name,
+            column + "_" + self.df2_name,
+        ]
+        return_df = full_list[return_cols]
+        if for_display:
+            return_df.columns = pd.Index(
+                self.join_columns
+                + [
+                    column + " (" + self.df1_name + ")",
+                    column + " (" + self.df2_name + ")",
+                ]
+            )
+        to_return = return_df.groupby([column + " (" + self.df1_name + ")", column + " (" + self.df2_name + ")" ]).size().reset_index(name='Count')
+        to_return.rename(columns={column + " (" + self.df1_name + ")": self.df1_name, column + " (" + self.df2_name + ")" : self.df2_name }, inplace=True)
+        to_return['Columns'] = column
+        order = ['Columns',  self.df1_name,  self.df2_name, 'Count']
+        to_return = to_return[order]
+        return to_return
