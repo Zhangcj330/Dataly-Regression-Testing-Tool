@@ -2,6 +2,7 @@
 import os
 from typing import Any, Dict, List, Optional, Union, cast
 
+import datetime
 import numpy as np
 import pandas as pd
 
@@ -17,11 +18,16 @@ class DatalyCompare(Compare):
             if not self.on_index:
                 pdf = pdf.reset_index(drop=True)
             return pdf.to_string()
+        
+        current_time = datetime.datetime.now()
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
         # Header
         report = ("Dataly Regression Test Output")
         report += "\n"
         report += "--------------------"
+        report += "\n"
+        report += "The report was generated on " + formatted_time
         report += "\n\n"
         report += "DataFrame Summary"
         report += "\n"
@@ -160,7 +166,7 @@ class DatalyCompare(Compare):
             )
         to_return = return_df.groupby([column + " (" + self.df1_name + ")", column + " (" + self.df2_name + ")" ]).size().reset_index(name='Count')
         to_return.rename(columns={column + " (" + self.df1_name + ")": self.df1_name, column + " (" + self.df2_name + ")" : self.df2_name }, inplace=True)
-        to_return['Columns'] = column
-        order = ['Columns',  self.df1_name,  self.df2_name, 'Count']
+        to_return['Column'] = column
+        order = ['Column',  self.df1_name,  self.df2_name, 'Count']
         to_return = to_return[order]
         return to_return
