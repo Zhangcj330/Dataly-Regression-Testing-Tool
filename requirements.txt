@@ -3,3 +3,4 @@ pandas
 datacompy
 matplotlib
 streamlit
+pytest
