@@ -130,8 +130,9 @@ class DatalyCompare(Compare):
             report += "Key Summary of Unequal Values\n"
             report += "-------------------------------\n"
             report += "\n"
-            report += df_to_str(pd.concat(match_full_list, axis=0, ignore_index=True))
-            report += "\n\n"
+            if match_full_list:
+                report += df_to_str(pd.concat(match_full_list, axis=0, ignore_index=True))
+                report += "\n\n"
 
             if sample_count > 0:
                 report += "Sample Rows with Unequal Values\n"
