@@ -1,5 +1,5 @@
 import streamlit as st
-from core import DatalyCompare
+from src.core import compare
 import pandas as pd
 
 st.set_page_config(
@@ -49,7 +49,7 @@ if file1 and file2:
         compare_button = st.button("Compare")
 
     if compare_button:
-        compare = DatalyCompare(
+        compare = compare.DatalyCompare(
             df1,
             df2,
             join_columns=join_columns, 

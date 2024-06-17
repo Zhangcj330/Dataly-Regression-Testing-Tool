@@ -1,5 +1,4 @@
 
-import os
 from typing import Any, Dict, List, Optional, Union, cast
 
 import datetime
@@ -14,6 +13,9 @@ class DatalyCompare(Compare):
         sample_count: int = 10,
         html_file: Optional[str] = None,
     ) -> str:
+        if self.df1.empty or self.df2.empty:
+            raise ValueError("One or both dataframes are empty. Comparison requires non-empty dataframes.")
+
         def df_to_str(pdf: pd.DataFrame) -> str:
             if not self.on_index:
                 pdf = pdf.reset_index(drop=True)
