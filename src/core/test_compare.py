@@ -31,8 +31,7 @@ def test_report_with_diff(setup_data):
     assert "DataFrame Summary" in report
     assert "Columns with Unequal Values or Types" in report
     assert "Sample Rows with Unequal Values" in report
-    assert "Columns in df1 Have all Null values:" in report
-    assert "Columns in df2 Have all Null values:" in report
+    assert "Columns with all Null values: " in report
     assert "Max Diff" in report
     assert "# Unequal" in report
 

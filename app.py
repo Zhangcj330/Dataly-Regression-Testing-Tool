@@ -38,7 +38,8 @@ with col2:
 if file1 and file2:
     df1 = read_data(file1)
     df2 = read_data(file2)
-        # Ensure both dataframes are not None before proceeding
+    
+    # Ensure both dataframes are not None before proceeding
     if df1 is not None and df2 is not None:
         column_names = df1.columns.tolist()
         join_columns = st.multiselect("Choose your unique identifiers", column_names)
@@ -46,49 +47,48 @@ if file1 and file2:
         if not join_columns:
             st.warning("Please select at least one unique identifier.")
         st.divider()
-
-        col1, col2, col3, col4= st.columns([2, 1, 1, 1])
-        with col2:
-            compare_button = st.button("Compare", type="primary", use_container_width = True)
-
-        if compare_button:
-            compare = compare.DatalyCompare(
-                df1,
-                df2,
-                join_columns=join_columns, 
-                abs_tol=0.0001,
-                rel_tol=0,
-                df1_name="Original",
-                df2_name="New"
-            )
-            # Store the regression report in the session state
-            st.session_state['regression_report'] = compare.Regression_report()
-
-            # Generate mismatch DataFrame
-            st.session_state['mismatch_df'] = compare.all_mismatch(ignore_matching_cols=True)
-            
-
-        if 'mismatch_df' in st.session_state:
-            report =  st.session_state['regression_report']
-            csv_data = st.session_state['mismatch_df'].to_csv().encode("utf-8")
-            with col3:
-                st.download_button(
-                    label="Download Report",
-                    data=report,
-                    file_name='report.txt',
-                )
-            with col4:
-                st.download_button(
-                    label="Discrepancy Details",
-                    data=csv_data,
-                    file_name='sample_data.csv',
-                    mime='text/csv',
-                )
-            # Display the regression report from the session state if it exists
-        if 'regression_report' in st.session_state:
-            st.code(st.session_state['regression_report'], language='text')
     else:
         st.error("Failed to load data. Please ensure the files are in the correct format.")
+    
+    col1, col2, col3, col4= st.columns([2, 1, 1, 1])
+    with col2:
+        compare_button = st.button("Compare", type="primary", use_container_width = True)
+    if compare_button and df1 is not None and df2 is not None :
+        compare = compare.DatalyCompare(
+            df1,
+            df2,
+            join_columns=join_columns, 
+            abs_tol=0.0001,
+            rel_tol=0,
+            df1_name="Original",
+            df2_name="New"
+        )
+        # Store the regression report in the session state
+        st.session_state['regression_report'] = compare.Regression_report()
+
+        # Generate mismatch DataFrame
+        st.session_state['mismatch_df'] = compare.all_mismatch(ignore_matching_cols=True)
+        
+
+    if 'mismatch_df' in st.session_state:
+        report =  st.session_state['regression_report']
+        csv_data = st.session_state['mismatch_df'].to_csv().encode("utf-8")
+        with col3:
+            st.download_button(
+                label="Download Report",
+                data=report,
+                file_name='report.txt',
+            )
+        with col4:
+            st.download_button(
+                label="Discrepancy Details",
+                data=csv_data,
+                file_name='sample_data.csv',
+                mime='text/csv',
+            )
+        # Display the regression report from the session state if it exists
+    if 'regression_report' in st.session_state:
+        st.code(st.session_state['regression_report'], language='text')
 else:
     join_columns = st.multiselect("Choose your unique identifiers", [])
     st.divider()

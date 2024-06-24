@@ -54,17 +54,21 @@ class DatalyCompare(Compare):
             self.df1_name,
             self.df2_name,
         )
-        
-        df1_null_columns = self.df1.columns[self.df1.isna().all()].tolist()
-        null_columns_d1 = pd.DataFrame(df1_null_columns, columns=[f"Columns with all Null values in {self.df1_name}"])
-        report += null_columns_d1.to_string(justify="left")
-        report += "\n"
-        report += "\n"
-        df2_null_columns = self.df2.columns[self.df2.isna().all()].tolist()
-        null_columns_d2 = pd.DataFrame(df2_null_columns, columns=[f"Columns with all Null values in {self.df2_name}"])
-        report += null_columns_d2.to_string(justify="left")
-        report += "\n\n"
 
+        report += "Columns with all Null values: \n" 
+        df1_null_columns = self.df1.columns[self.df1.isna().all()].tolist()
+        df2_null_columns = self.df2.columns[self.df2.isna().all()].tolist()
+        if df1_null_columns :
+            null_columns_df1 = pd.DataFrame(df1_null_columns, columns=[f"Columns with all Null values in {self.df1_name}"])
+            report += null_columns_df1.to_string(justify = 'left') + "\n\n"
+        else:
+            report += f"No columns with all null values in {self.df1_name}.\n"
+
+        if df2_null_columns:
+            null_columns_df2 = pd.DataFrame(df2_null_columns, columns=[f"Columns with all Null values in {self.df2_name}"])
+            report += null_columns_df2.to_string(justify = 'left') + "\n\n"
+        else:
+            report += f"No columns with all null values in {self.df2_name}.\n\n"
 
         # Row Summary
         if self.on_index:
