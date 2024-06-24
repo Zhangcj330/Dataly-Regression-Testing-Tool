@@ -54,9 +54,15 @@ class DatalyCompare(Compare):
             self.df1_name,
             self.df2_name,
         )
-        report += "Columns in " + self.df1_name + " Have all Null values: " + str(', '.join(self.df1.columns[self.df1.isna().all()].tolist()))
+        
+        df1_null_columns = self.df1.columns[self.df1.isna().all()].tolist()
+        null_columns_d1 = pd.DataFrame(df1_null_columns, columns=[f"Columns with all Null values in {self.df1_name}"])
+        report += null_columns_d1.to_string(justify="left")
         report += "\n"
-        report += "Columns in " + self.df2_name + " Have all Null values: "  + str(', '.join(self.df2.columns[self.df1.isna().all()].tolist()))
+        report += "\n"
+        df2_null_columns = self.df2.columns[self.df2.isna().all()].tolist()
+        null_columns_d2 = pd.DataFrame(df2_null_columns, columns=[f"Columns with all Null values in {self.df2_name}"])
+        report += null_columns_d2.to_string(justify="left")
         report += "\n\n"
 
 
@@ -105,7 +111,7 @@ class DatalyCompare(Compare):
                     )
                     match_full_list.append(
                         self.ful_list_single_mismatch(
-                            column["column"], for_display=True
+                            column["column"]
                         )
                     )
                   
@@ -147,7 +153,7 @@ class DatalyCompare(Compare):
         return report
 
     def ful_list_single_mismatch(
-        self, column: str, for_display: bool = False
+        self, column: str
     ) -> pd.DataFrame:
         """Returns a all sub-dataframe which contains the identifying
         columns, and df1 and df2 versions of the column.
@@ -159,17 +165,25 @@ class DatalyCompare(Compare):
             column + "_" + self.df2_name,
         ]
         return_df = full_list[return_cols]
-        if for_display:
-            return_df.columns = pd.Index(
-                self.join_columns
-                + [
-                    column + " (" + self.df1_name + ")",
-                    column + " (" + self.df2_name + ")",
-                ]
-            )
-        to_return = return_df.groupby([column + " (" + self.df1_name + ")", column + " (" + self.df2_name + ")" ]).size().reset_index(name='Count')
-        to_return.rename(columns={column + " (" + self.df1_name + ")": self.df1_name, column + " (" + self.df2_name + ")" : self.df2_name }, inplace=True)
-        to_return['Column'] = column
-        order = ['Column',  self.df1_name,  self.df2_name, 'Count']
-        to_return = to_return[order]
-        return to_return
+        return_df.columns = pd.Index(
+            self.join_columns
+            + [
+                column + " (" + self.df1_name + ")",
+                column + " (" + self.df2_name + ")",
+            ]
+        )
+        group_sizes  = return_df.groupby([column + " (" + self.df1_name + ")", column + " (" + self.df2_name + ")" ]).size().reset_index()
+        group_sizes.rename(
+        columns={
+            f"{column} ({self.df1_name})": self.df1_name,
+            f"{column} ({self.df2_name})": self.df2_name,
+            0: 'Count'
+            }, inplace=True
+        )
+        
+        # Add a column for the mismatched column name
+        group_sizes['Column'] = column
+        
+        # Order columns
+        order = ['Column', self.df1_name, self.df2_name, 'Count']
+        return group_sizes[order]
